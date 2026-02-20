@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/css/site.css" rel="stylesheet" />
+    @RenderSection("Styles", false)
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Боковое меню -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Codify dolboor</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/Authors" class="nav-item">
+                    <span>Авторы</span>
+                </a>
+                <a href="/Projects" class="nav-item">
+                    <span>Проекты</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/Account/Logout" class="logout-btn">
+                    <img src="~/images/sign-out-alt.svg" alt="Выход" />
+                    <span>Выход</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1>@ViewBag.Title</h1>
+            </header>
+            <div class="content-body">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    @RenderSection("Scripts", false)
+</body>
+</html>

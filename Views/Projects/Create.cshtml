@@ -1,0 +1,225 @@
+﻿@using CodifyProjectsBackend.Models.Dto
+
+@model EditProjectDto?
+
+
+@{
+    if (Model != null)
+    {
+        ViewBag.Title = "Редактирование проекта";
+    }
+    else
+    {
+        ViewBag.Title = "Создание проекта";
+    }
+}
+
+<div class="create-project-page">
+    <div class="page-header">
+        <a href="/projects" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Назад к списку
+        </a>
+    </div>
+
+    <div class="form-container">
+        <div class="form-grid">
+            <div class="form-section">
+                <h3 class="section-title">Основная информация</h3>
+
+                <div class="form-group">
+                    <label for="titleInput">Заголовок</label>
+                    <input type="text" name="title" id="titleInput" placeholder="Введите заголовок проекта" />
+                </div>
+
+                <div class="form-group">
+                    <label for="courseInput">Курс</label>
+                    <input type="text" name="course" id="courseInput" placeholder="Введите курс"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="urlInput">Ссылка на проект</label>
+                    <input type="text" name="url" id="urlInput" placeholder="Введите ссылку" />
+                </div>
+
+                <div class="form-group">
+                    <label for="descriptionInput">Описание</label>
+                    <textarea name="description" id="descriptionInput" rows="6" placeholder="Введите описание проекта"></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Автора</h3>
+                <div class="author-select-container">
+                    <button class="author-select-button" id="authorSelectButton">
+                        Выбрать автора
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="authors-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Автор</th>
+                                <th style="min-width: 120px;">Возраст</th>
+                                <th>Предыдущие навыки</th>
+                                <th>Полученные навыки</th>
+                            </tr>
+                        </thead>
+                        <tbody id="authorTableBody">
+                            <!-- Данные будут загружены через JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Медиа</h3>
+
+                <div class="medias-manager">
+
+                    <div class="medias-actions">
+                        <input type="file" name="uploadMediaInput" id="uploadMediaInput" value="" multiple />
+                        <button class="btn-add-media" id="uploadMediaButton">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                            Добавить файл
+                        </button>
+                    </div>
+
+                    <div class="media-list" id="mediaList">
+
+
+                    </div>
+
+                </div>
+                
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Проект</h3>
+
+                <div class="project-actions-container">
+                    <input type="file" name="uploadProjectInput" id="uploadProjectInput" value="" multiple webkitdirectory />
+                    <button class="btn-upload-project" id="uploadProjectButton">
+                        Выбрать папку проекта
+                    </button>
+                    <label id="projectFilesCountIndicator"></label>
+                </div>
+
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Структура кода</h3>
+
+                <div class="code-editor">
+                    <div class="code-tree">
+                        <div class="tree-header">
+                            <span>Файлы проекта</span>
+                            <button type="button" class="btn-tree-action" id="addRootFolderBtn" title="Создать папку">
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                    <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="tree-content" id="treeContent">
+                            <!-- Структура будет загружена через JS -->
+                        </div>
+                    </div>
+
+                    <div class="code-details">
+                        <div class="details-empty" id="detailsEmpty">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5">
+                                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p>Выберите файл для редактирования</p>
+                        </div>
+
+                        <div class="details-form" id="detailsForm" style="display: none;">
+                            <div class="form-group">
+                                <label for="fileNameInput">Название файла</label>
+                                <input type="text" id="fileNameInput" placeholder="example.js" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fileLanguageInput">Язык программирования</label>
+                                <input type="text" id="fileLanguageInput" placeholder="JavaScript, Python, C#..." />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fileExplanationInput">Объяснение</label>
+                                <textarea id="fileExplanationInput" rows="4" placeholder="Опишите назначение этого файла..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fileContentInput">Содержимое</label>
+                                <textarea id="fileContentInput" rows="12" placeholder="// Вставьте код здесь..." style="font-family: 'Courier New', monospace;"></textarea>
+                            </div>
+
+                            <div class="details-actions">
+                                <button type="button" class="btn-details-save" id="saveFileBtn">Сохранить</button>
+                                <button type="button" class="btn-details-delete" id="deleteFileBtn">Удалить файл</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="window.location.href='/projects'">Отмена</button>
+            <button type="button" id="saveBtn" class="btn-save">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M13.3333 4L6 11.3333L2.66667 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Сохранить проект
+            </button>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div class="card">
+            <div class="overlay-header">
+                <input type="text" value="" id="authorsSearchInput" />
+                <button id="getAuthorsBtn">Поиск</button>
+                <button id="cancelAuthorsBtn">Отмена</button>
+            </div>
+
+            <div class="table-container">
+                <table class="authors-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Автор</th>
+                            <th style="min-width: 120px;">Возраст</th>
+                            <th>Предыдущие навыки</th>
+                            <th>Полученные навыки</th>
+                        </tr>
+                    </thead>
+                    <tbody id="authorsTableBody">
+                        <!-- Данные будут загружены через JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/css/projects/create.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="~/js/projects/create.js"></script>
+    <script>
+        var project = @Html.Raw(Json.Serialize(Model))
+        setProject(project);
+    </script>
+}
