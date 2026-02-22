@@ -19,8 +19,41 @@ builder.WebHost.ConfigureKestrel(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+string? argDbConnectionString = null;
+
+if (args.Length > 0)
+{
+    Console.WriteLine(string.Join(", ", args));
+    for (int i = 0; i < args.Length; i++)
+    {
+        var arg = args[i];
+
+        if (arg == "-db" || arg == "-database")
+        {
+            if (i + 1 >= args.Length)
+            {
+                Console.WriteLine("Database value was not specified.");
+            }
+            else
+            {
+                argDbConnectionString = args[i + 1];
+            }
+        }
+    }
+}
+
 var configuration = builder.Configuration;
-string connectionString = configuration.GetConnectionString("MainDb") ?? string.Empty;
+string? connectionString = argDbConnectionString ?? configuration.GetConnectionString("MainDb") ?? null;
+
+Console.WriteLine($"Database connection string: {connectionString}");
+
+if (connectionString == null)
+{
+    Console.WriteLine("Database connection string not found!\n\nPress any key to exit program...");
+    Console.ReadKey();
+    return;
+}
+
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddSingleton<IMediaService, MediaService>();
@@ -42,7 +75,14 @@ builder.Services.AddAuthentication("Cookies")
         options.LoginPath = "/Account";
         options.AccessDeniedPath = "/Account/Denied";
     });
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/keys")) // тут монтируется volume
+    .SetApplicationName("MyApp");
+
 var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -50,15 +90,23 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    logger?.LogInformation("Project runs at Production mode");
+}
+else
+{
+    logger?.LogInformation("Project runs at Development mode");
 }
 
+
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+app.UseDefaultFiles();
+
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapStaticAssets();
 
 var storagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "storage");
 

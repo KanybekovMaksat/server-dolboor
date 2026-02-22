@@ -18,5 +18,5 @@ public class Project
 
     public int LoadedProjectFilesCount { get; set; }
 
-    public string? Code { get; set; } // Вот здесь хранится структура кода
+    public string? Code { get; set; }
 }
