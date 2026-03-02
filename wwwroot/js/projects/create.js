@@ -128,6 +128,9 @@ function objectToFormData(obj, formData = new FormData(), parentKey = '') {
 const titleInput = document.querySelector("#titleInput");
 const courseInput = document.querySelector("#courseInput");
 const urlInput = document.querySelector("#urlInput");
+const canvaUrlInput = document.querySelector("#canvaUrlInput");
+const githubUrlInput = document.querySelector("#githubUrlInput");
+const mentorInput = document.querySelector("#mentorInput");
 const descriptionInput = document.querySelector("#descriptionInput");
 
 const uploadMediaButton = document.querySelector("#uploadMediaButton");
@@ -149,7 +152,7 @@ const overlay = document.querySelector("#overlay");
 
 const projectFiles = [];
 
-let selectedAuthor = null;
+let selectedAuthors = [];
 
 let mode = 0;
 let projectId;
@@ -168,22 +171,28 @@ function setProject(project) {
         titleInput.value = project.title;
         descriptionInput.textContent = project.description;
         urlInput.value = project.url;
+        canvaUrlInput.value = project.canvaUrl;
+        githubUrlInput.value = project.githubUrl;
+        mentorInput.value = project.mentor;
         courseInput.value = project.course;
-
-        author = {
-            id: project.authorId,
-            fullName: project.authorFullName,
-            age: project.authorAge,
-            photoUrl: project.authorPhotoUrl,
-            previousSkills: project.authorPreviousSkills,
-            obtainedSkills: project.authorObtainedSkills
-        }
 
         project.medias.forEach(m => {
             addFileUrl(m.url, m.id, m.type == 0 ? 'image' : 'video');
         });
 
-        selectAuthor(author);
+        project.authors.forEach(a => {
+
+            author = {
+                id: a.id,
+                fullName: a.fullName,
+                age: a.age,
+                photoUrl: a.photoUrl,
+                previousSkills: a.previousSkills,
+                obtainedSkills: a.obtainedSkills
+            }
+
+            selectAuthor(author);
+        })
 
         if (project.loadedProjectFilesCount > 0) {
             isProjectLoaded = true;
@@ -247,10 +256,10 @@ async function getAuthors() {
         return;
     }
 
-    renderAuthors(responseBody, authorsTableBody);
+    renderAuthors(responseBody.filter(a => !selectedAuthors.find(ai => ai.id == a.id)), authorsTableBody);
 }
 
-function renderAuthors(authors, tableBody) {
+function renderAuthors(authors, tableBody, mainAuthor = false) {
     tableBody.innerHTML = "";
 
     // Пустое состояние
@@ -355,26 +364,49 @@ function renderAuthors(authors, tableBody) {
         }
         tdObtSkills.appendChild(obtSkillsDiv);
 
+        const tdActns = document.createElement("td");
+        const actnDiv = document.createElement("div");
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "remove-author-button";
+        removeBtn.textContent = "Удалить";
+        removeBtn.addEventListener("click", () => {
+            removeAuthor(author);
+        });
+        tdActns.appendChild(removeBtn);
+
+        
         // Сборка строки
         tr.appendChild(tdId);
         tr.appendChild(tdAuthor);
         tr.appendChild(tdAge);
         tr.appendChild(tdPrevSkills);
         tr.appendChild(tdObtSkills);
+        if (mainAuthor) {
+            tr.appendChild(tdActns);
+        }
+
 
         tableBody.appendChild(tr);
 
-        tr.addEventListener("click", () => { selectAuthor(author); toggleOverlay(); });
+        if (!mainAuthor) {
+            tr.addEventListener("click", () => { selectAuthor(author); toggleOverlay(); });
+        }
     });
 }
 
 function selectAuthor(author) {
-    selectedAuthor = author;
-    renderAuthors([author], authorTableBody);
+    selectedAuthors.push(author);
+    renderAuthors(selectedAuthors, authorTableBody, true);
     isAuthorChanged = true;
 }
-let filesMap = new Map(); // используем Map вместо массива
-let fileIdCounter = 0; // счётчик для уникальных ID
+function removeAuthor(author) {
+    selectedAuthors = selectedAuthors.filter(a => a != author);
+    renderAuthors(selectedAuthors, authorTableBody, true);
+    isAuthorChanged = true;
+}
+let filesMap = new Map();
+let fileIdCounter = 0;
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'video/mp4'];
 
 uploadMediaButton.addEventListener("click", () => {
@@ -387,7 +419,6 @@ uploadMediaInput.addEventListener("change", async () => {
             ALLOWED_TYPES.includes(f.type)
         );
         
-        // Добавляем только новые файлы
         for (const file of newFiles) {
             await addFile(file);
         }
@@ -439,10 +470,8 @@ async function addFileUrl(url, id = null, type = 'image') {
 }
 
 function removeFile(fileId) {
-    // Удаляем из Map
     filesMap.delete(fileId);
     
-    // Удаляем элемент из DOM
     const element = mediaList.querySelector(`[data-file-id="${fileId}"]`);
     if (element) {
         element.remove();
@@ -450,7 +479,6 @@ function removeFile(fileId) {
     isMediaChanged = true;
 }
 
-// Если нужно получить список файлов (например, для отправки на сервер)
 function getFilesArray() {
     return Array.from(filesMap.values());
 } 
@@ -505,8 +533,13 @@ async function post() {
         return;
     }
 
-    if (!selectedAuthor) {
+    if (!selectedAuthors || selectedAuthors.length <= 0) {
         alert("Выберите автора!");
+        return;
+    }
+
+    if (!mentorInput.value) {
+        alert("Введите ментора!");
         return;
     }
 
@@ -515,8 +548,13 @@ async function post() {
     formData.append("title", titleInput.value);
     formData.append("description", descriptionInput.value);
     formData.append("url", urlInput.value);
+    formData.append("canvaUrl", canvaUrlInput.value);
+    formData.append("githubUrl", githubUrlInput.value);
+    formData.append("mentor", mentorInput.value);
     formData.append("course", courseInput.value);
-    formData.append("authorId", selectedAuthor.id);
+    selectedAuthors.forEach(a => {
+        formData.append("authorIds", a.id);
+    })
     formData.append("codeStructure", JSON.stringify(codeStructure));
 
     let medias = getFilesArray();
@@ -557,7 +595,6 @@ async function post() {
     location.href = '/Projects';
 }
 
-// Code Structure Editor
 let codeStructure = { folders: [], files: [] };
 let selectedFile = null;
 let itemIdCounter = 0;
@@ -865,5 +902,5 @@ deleteFileBtn.addEventListener('click', () => {
     }
 });
 
-// Инициализация
 renderTree();
+renderAuthors([], authorTableBody);

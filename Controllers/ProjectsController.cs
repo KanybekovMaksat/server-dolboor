@@ -42,7 +42,7 @@ public partial class ProjectsController : Controller
             return RedirectToAction("Create");
         }
 
-        var project = await db.Projects.Include(p => p.Author).Include(p => p.Medias).FirstOrDefaultAsync(p => p.Id == id);
+        var project = await db.Projects.Include(p => p.Authors).Include(p => p.Medias).FirstOrDefaultAsync(p => p.Id == id);
 
         if (project == null)
         {
@@ -54,14 +54,20 @@ public partial class ProjectsController : Controller
             Id = project.Id,
             Title = project.Title,
             Description = project.Description,
-            Url = project.EnteredPath,
+            Url = project.EnteredPath ?? string.Empty,
+            CanvaUrl = project.CanvaUrl,
+            GithubUrl = project.GithubUrl,
+            Mentor = project.Mentor,
             Course = project.Course,
-            AuthorId = project.AuthorId,
-            AuthorFullName = project.Author.FullName,
-            AuthorAge = project.Author.Age,
-            AuthorPhotoUrl = project.Author.PhotoUrl,
-            AuthorPreviousSkills = [.. project.Author.PreviousSkills],
-            AuthorObtainedSkills = [.. project.Author.ObtainedSkills],
+            Authors = [.. project.Authors.Select(a => new AuthorDto()
+            {
+                Id = a.Id,
+                FullName = a.FullName,
+                Age = a.Age,
+                PhotoUrl = a.PhotoUrl,
+                PreviousSkills = [.. a.PreviousSkills],
+                ObtainedSkills = [.. a.ObtainedSkills],
+            } )],
             Medias = [.. project.Medias.Select(m => new MediaDto() { Id = m.Id, Url = m.Url, Type = m.Type })],
             LoadedProjectFilesCount = project.LoadedProjectFilesCount,
             CodeStructure = project.Code == null ? null : codeStructureParser.ConvertToDto(JsonSerializer.Deserialize<Folder>(project.Code) ?? new())
@@ -72,7 +78,7 @@ public partial class ProjectsController : Controller
     [HttpGet]
     public async Task<IActionResult> Get([FromServices]AppDbContext db, [FromQuery]string? search)
     {
-        var query = db.Projects.Include(p => p.Author).AsQueryable();
+        var query = db.Projects.Include(p => p.Authors).AsQueryable();
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -86,17 +92,17 @@ public partial class ProjectsController : Controller
                 p.Title,
                 p.Description,
                 p.Url,
-                p.CanvaUrl,
                 p.Course,
-                Author = new
+                Authors = p.Authors.Select(a => new
                 {
-                    p.Author.FullName,
-                    p.Author.Age,
-                    p.Author.Testimonial,
-                    p.Author.PhotoUrl,
-                    p.Author.PreviousSkills,
-                    p.Author.ObtainedSkills,
-                }
+                    a.Id,
+                    a.FullName,
+                    a.Age,
+                    a.Testimonial,
+                    a.PhotoUrl,
+                    a.PreviousSkills,
+                    a.ObtainedSkills,
+                })
             })
             .Take(1000)
             .ToListAsync();
@@ -107,41 +113,44 @@ public partial class ProjectsController : Controller
     [HttpGet]
     public async Task<IActionResult> GetDetailed([FromServices] AppDbContext db, [FromServices] CodeStructureParser codeStructureParser, [FromQuery] Guid id)
     {
-        var project = await db.Projects
-            .Include(p => p.Author)
+        var p = await db.Projects
+            .Include(p => p.Authors)
             .Include(p => p.Medias)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        if (project == null)
+        if (p == null)
         {
             return NotFound();
         }
 
         var result = new
         {
-            project.Id,
-            project.Title,
-            project.Description,
-            project.Url,
-            project.CanvaUrl,
-            project.Course,
-            Medias = project.Medias
+            p.Id,
+            p.Title,
+            p.Description,
+            p.Url,
+            p.CanvaUrl,
+            p.GithubUrl,
+            p.Mentor,
+            p.Course,
+            Medias = p.Medias
                 .Select(m => new
                 {
                     m.Id,
                     m.Url,
                     Type = m.Type == Models.MediaType.Image ? "image" : "video"
                 }),
-            Author = new
+            Authors = p.Authors.Select(a => new
             {
-                project.Author.FullName,
-                project.Author.Age,
-                project.Author.Testimonial,
-                project.Author.PhotoUrl,
-                project.Author.PreviousSkills,
-                project.Author.ObtainedSkills,
-            },
-            Code = project.Code == null ? null : JsonSerializer.Deserialize<Folder>(project.Code)
+                a.Id,
+                a.FullName,
+                a.Age,
+                a.Testimonial,
+                a.PhotoUrl,
+                a.PreviousSkills,
+                a.ObtainedSkills,
+            }),
+            Code = p.Code == null ? null : JsonSerializer.Deserialize<Folder>(p.Code)
         };
 
         return Json(result);
@@ -156,9 +165,9 @@ public partial class ProjectsController : Controller
             return BadRequest();
         }
 
-        Author? author = await db.Authors.FirstOrDefaultAsync(a => a.Id == dto.AuthorId);
+        List<Author>? authors = await db.Authors.Where(a => dto.AuthorIds.Contains(a.Id)).ToListAsync();
 
-        if (author == null) 
+        if (authors == null || authors.Count <= 0) 
         {
             return NotFound();
         }
@@ -241,10 +250,13 @@ public partial class ProjectsController : Controller
             EnteredPath = enteredPath,
             PhysicalPath = physicalPath,
             Course = dto.Course,
-            Author = author,
+            Authors = authors,
             Code = JsonSerializer.Serialize(code, jsonSerializerOptions),
             Medias = medias,
             LoadedProjectFilesCount = loadedProjectFilesCount,
+            CanvaUrl = dto.CanvaUrl,
+            GithubUrl = dto.GithubUrl,
+            Mentor = dto.Mentor
         };
 
         db.Projects.Add(newProject);
@@ -269,6 +281,7 @@ public partial class ProjectsController : Controller
 
         Project? project = await db.Projects
             .Include(p => p.Medias)
+            .Include(p => p.Authors)
             .FirstOrDefaultAsync(p => p.Id == dto.Id);
 
         if (project == null)
@@ -276,14 +289,15 @@ public partial class ProjectsController : Controller
             return NotFound();
         }
 
-        if (project.AuthorId != dto.AuthorId && dto.IsAuthorChanged)
+        if (dto.IsAuthorChanged)
         {
-            Author? author = await db.Authors.FirstOrDefaultAsync(a => a.Id == dto.AuthorId);
-            if (author == null)
+            List<Author>? authors = await db.Authors.Where(a => dto.AuthorIds.Contains(a.Id)).ToListAsync();
+
+            if (authors == null || authors.Count <= 0)
             {
                 return NotFound();
             }
-            project.AuthorId = author.Id;
+            project.Authors = authors;
         }
 
         if (dto.IsMediaChanged)
@@ -417,6 +431,8 @@ public partial class ProjectsController : Controller
         project.Title = dto.Title;
         project.Description = dto.Description;
         project.Course = dto.Course;
+        project.CanvaUrl = dto.CanvaUrl;
+        project.Mentor = dto.Mentor;
 
         await db.SaveChangesAsync();
         return Ok();

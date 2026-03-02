@@ -30,10 +30,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Media>().ToTable("Medias");
 
         modelBuilder.Entity<Project>()
-            .HasOne(p => p.Author)
-            .WithMany(a => a.Projects)
-            .HasForeignKey(p => p.AuthorId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasMany(p => p.Authors)
+            .WithMany(a => a.Projects);
 
         modelBuilder.Entity<Media>()
             .HasOne(m => m.Project)

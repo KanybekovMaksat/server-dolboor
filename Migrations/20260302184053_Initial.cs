@@ -50,21 +50,40 @@ namespace CodifyProjectsBackend.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     EnteredPath = table.Column<string>(type: "text", nullable: true),
-                    Url = table.Column<string>(type: "text", nullable: true),
+                    Url = table.Column<string>(type: "text", nullable: false),
                     PhysicalPath = table.Column<string>(type: "text", nullable: true),
                     Course = table.Column<string>(type: "text", nullable: false),
-                    CanvaUrl = table.Column<string>(type: "text", nullable: false),
-                    AuthorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CanvaUrl = table.Column<string>(type: "text", nullable: true),
+                    GithubUrl = table.Column<string>(type: "text", nullable: true),
+                    Mentor = table.Column<string>(type: "text", nullable: false),
                     LoadedProjectFilesCount = table.Column<int>(type: "integer", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Projects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuthorProject",
+                columns: table => new
+                {
+                    AuthorsId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectsId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthorProject", x => new { x.AuthorsId, x.ProjectsId });
                     table.ForeignKey(
-                        name: "FK_Projects_Authors_AuthorId",
-                        column: x => x.AuthorId,
+                        name: "FK_AuthorProject_Authors_AuthorsId",
+                        column: x => x.AuthorsId,
                         principalTable: "Authors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AuthorProject_Projects_ProjectsId",
+                        column: x => x.ProjectsId,
+                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -91,14 +110,14 @@ namespace CodifyProjectsBackend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuthorProject_ProjectsId",
+                table: "AuthorProject",
+                column: "ProjectsId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Medias_ProjectId",
                 table: "Medias",
                 column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Projects_AuthorId",
-                table: "Projects",
-                column: "AuthorId");
         }
 
         /// <inheritdoc />
@@ -108,13 +127,16 @@ namespace CodifyProjectsBackend.Migrations
                 name: "Accounts");
 
             migrationBuilder.DropTable(
+                name: "AuthorProject");
+
+            migrationBuilder.DropTable(
                 name: "Medias");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "Authors");
 
             migrationBuilder.DropTable(
-                name: "Authors");
+                name: "Projects");
         }
     }
 }

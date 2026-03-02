@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CodifyProjectsBackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260220134551_Initial")]
+    [Migration("20260302184053_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -24,6 +24,21 @@ namespace CodifyProjectsBackend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("AuthorProject", b =>
+                {
+                    b.Property<Guid>("AuthorsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProjectsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AuthorsId", "ProjectsId");
+
+                    b.HasIndex("ProjectsId");
+
+                    b.ToTable("AuthorProject");
+                });
 
             modelBuilder.Entity("CodifyProjectsBackend.Models.Account", b =>
                 {
@@ -110,11 +125,7 @@ namespace CodifyProjectsBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("CanvaUrl")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Code")
@@ -131,8 +142,15 @@ namespace CodifyProjectsBackend.Migrations
                     b.Property<string>("EnteredPath")
                         .HasColumnType("text");
 
+                    b.Property<string>("GithubUrl")
+                        .HasColumnType("text");
+
                     b.Property<int>("LoadedProjectFilesCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Mentor")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("PhysicalPath")
                         .HasColumnType("text");
@@ -142,13 +160,27 @@ namespace CodifyProjectsBackend.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId");
-
                     b.ToTable("Projects", (string)null);
+                });
+
+            modelBuilder.Entity("AuthorProject", b =>
+                {
+                    b.HasOne("CodifyProjectsBackend.Models.Author", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CodifyProjectsBackend.Models.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CodifyProjectsBackend.Models.Media", b =>
@@ -160,22 +192,6 @@ namespace CodifyProjectsBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("CodifyProjectsBackend.Models.Project", b =>
-                {
-                    b.HasOne("CodifyProjectsBackend.Models.Author", "Author")
-                        .WithMany("Projects")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
-                });
-
-            modelBuilder.Entity("CodifyProjectsBackend.Models.Author", b =>
-                {
-                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("CodifyProjectsBackend.Models.Project", b =>

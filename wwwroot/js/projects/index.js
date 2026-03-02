@@ -70,7 +70,7 @@ function renderProjects(projects) {
                         <span class="project-title">${project.title}</span>
                     </td>
                     <td>
-                        <span class="project-author">${project.author.fullName}</span>
+                        <span class="project-author">${project.authors[0].fullName}</span>
                     </td>
                     <td>
                         <span class="project-course">${project.course}</span>
