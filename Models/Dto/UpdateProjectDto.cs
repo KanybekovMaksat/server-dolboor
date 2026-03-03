@@ -17,7 +17,6 @@ public class UpdateProjectDto
 
     [Required]
     public string Course { get; set; } = string.Empty;
-    [Required]
     public string Mentor { get; set; } = string.Empty;
 
     [Required]

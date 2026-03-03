@@ -17,8 +17,7 @@ public class EditProjectDto
 
     [Required]
     public string Course { get; set; } = string.Empty;
-    [Required]
-    public string Mentor { get; set; } = string.Empty;
+    public string? Mentor { get; set; }
 
     [Required]
     public List<AuthorDto> Authors { get; set; } = [];

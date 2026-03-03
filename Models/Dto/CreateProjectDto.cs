@@ -15,8 +15,7 @@ public class CreateProjectDto
 
     [Required]
     public string Course { get; set; } = string.Empty;
-    [Required]
-    public string Mentor { get; set; } = string.Empty;
+    public string? Mentor { get; set; }
 
     [Required]
     public List<Guid> AuthorIds { get; set; } = [];

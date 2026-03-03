@@ -9,9 +9,9 @@ public class Project
     public string Url { get; set; } = string.Empty;
     public string? PhysicalPath { get; set; }
     public string Course { get; set; } = string.Empty;
-    public string? CanvaUrl { get; set; } = string.Empty;
-    public string? GithubUrl { get; set; } = string.Empty;
-    public string Mentor { get; set; } = string.Empty;
+    public string? CanvaUrl { get; set; }
+    public string? GithubUrl { get; set; }
+    public string? Mentor { get; set; }
 
     public ICollection<Author> Authors { get; set; } = null!;
 

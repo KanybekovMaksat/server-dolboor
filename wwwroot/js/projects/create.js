@@ -538,11 +538,6 @@ async function post() {
         return;
     }
 
-    if (!mentorInput.value) {
-        alert("Введите ментора!");
-        return;
-    }
-
     const formData = new FormData()
 
     formData.append("title", titleInput.value);

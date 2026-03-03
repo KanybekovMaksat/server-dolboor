@@ -55,7 +55,7 @@ namespace CodifyProjectsBackend.Migrations
                     Course = table.Column<string>(type: "text", nullable: false),
                     CanvaUrl = table.Column<string>(type: "text", nullable: true),
                     GithubUrl = table.Column<string>(type: "text", nullable: true),
-                    Mentor = table.Column<string>(type: "text", nullable: false),
+                    Mentor = table.Column<string>(type: "text", nullable: true),
                     LoadedProjectFilesCount = table.Column<int>(type: "integer", nullable: false),
                     Code = table.Column<string>(type: "text", nullable: true)
                 },
