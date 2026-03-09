@@ -80,6 +80,17 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/keys")) // тут монтируется volume
     .SetApplicationName("MyApp");
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MainPolicy", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .WithMethods("GET");
+    });
+});
+
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
@@ -97,6 +108,7 @@ else
     logger?.LogInformation("Project runs at Development mode");
 }
 
+app.UseCors("MainPolicy");
 
 app.UseHttpsRedirection();
 

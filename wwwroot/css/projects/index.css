@@ -27,17 +27,17 @@
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: #6366f1;
+    background: var(--button-color);
     color: #ffffff;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
 }
 
-.btn-add:hover {
-    background: #5c60ed;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
+    .btn-add:hover {
+        background: var(--button-hover-color);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
 
 .table-container {
     background: #ffffff;
@@ -61,7 +61,7 @@
     text-align: left;
     font-size: 13px;
     font-weight: 600;
-    color: #6366f1;
+    color: var(--text-color);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }

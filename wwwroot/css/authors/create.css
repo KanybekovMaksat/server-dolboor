@@ -70,13 +70,13 @@
     margin-bottom: 20px;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #6366f1;
-    font-size: 14px;
-    font-weight: 500;
-}
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #009dff;
+        font-size: 14px;
+        font-weight: 500;
+    }
 
 .form-group input,
 .form-group textarea {
@@ -200,14 +200,14 @@
     margin: 0;
 }
 
-.skills-input-group input:focus {
-    outline: none;
-    border-color: #6366f1;
-}
+    .skills-input-group input:focus {
+        outline: none;
+        border-color: #009dff;
+    }
 
 .btn-add-skill {
     padding: 10px 12px;
-    background: #6366f1;
+    background: #009dff;
     color: #ffffff;
     border: none;
     border-radius: 10px;
@@ -219,9 +219,9 @@
     justify-content: center;
 }
 
-.btn-add-skill:hover {
-    background: #5c60ed;
-}
+    .btn-add-skill:hover {
+        background: #0090ed;
+    }
 
 .skills-list {
     display: flex;
@@ -317,14 +317,14 @@
 }
 
 .btn-save {
-    background: #6366f1;
+    background: #009dff;
     color: #ffffff;
 }
 
-.btn-save:hover {
-    background: #5c60ed;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
+    .btn-save:hover {
+        background: #0090ed;
+        box-shadow: #009dff;
+    }
 
 /* Responsive */
 @media (max-width: 768px) {

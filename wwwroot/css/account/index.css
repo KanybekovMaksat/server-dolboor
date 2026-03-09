@@ -17,9 +17,9 @@ body {
     box-shadow: 0 10px 30px rgba(140, 120, 180, 0.25);
 }
 
-.login-card h1 {
-    margin: 0 0 24px;
-    text-align: center;
-    color: #6366f1;
-    font-weight: 600;
-}
+    .login-card h1 {
+        margin: 0 0 24px;
+        text-align: center;
+        color: #009dff;
+        font-weight: 600;
+    }

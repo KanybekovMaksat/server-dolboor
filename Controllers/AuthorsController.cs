@@ -37,7 +37,6 @@ public class AuthorsController : Controller
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Get([FromServices]AppDbContext db, [FromQuery]string? search)
     {
         var query = db.Authors.AsQueryable();

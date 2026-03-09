@@ -27,17 +27,17 @@
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: #6366f1;
+    background: var(--button-color);
     color: #ffffff;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
 }
 
-.btn-add:hover {
-    background: #5c60ed;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
+    .btn-add:hover {
+        background: var(--button-hover-color);
+        box-shadow: var(--button-color);
+    }
 
 .table-container {
     background: #ffffff;
@@ -56,15 +56,15 @@
     border-bottom: 2px solid #e5e7eb;
 }
 
-.authors-table th {
-    padding: 16px 20px;
-    text-align: left;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6366f1;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+    .authors-table th {
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: #009dff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
 .authors-table tbody tr {
     border-bottom: 1px solid #f3f4f6;
@@ -121,8 +121,8 @@
 .age-badge {
     display: inline-block;
     padding: 4px 12px;
-    background: #ede9fe;
-    color: #6366f1;
+    background: #eff6ff;
+    color: #2563eb;
     border-radius: 20px;
     font-weight: 500;
     font-size: 13px;
@@ -212,17 +212,17 @@
     opacity: 0.3;
 }
 
-.empty-state h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #6b7280;
-    margin-bottom: 8px;
-}
+    .empty-state h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #009dff;
+        margin-bottom: 8px;
+    }
 
-.empty-state p {
-    font-size: 14px;
-    color: #9ca3af;
-}
+    .empty-state p {
+        font-size: 14px;
+        color: #009dff;
+    }
 
 /* Адаптивность */
 @media (max-width: 1200px) {
