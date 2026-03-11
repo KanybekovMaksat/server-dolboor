@@ -78,7 +78,7 @@ public partial class ProjectsController : Controller
     [HttpGet]
     public async Task<IActionResult> Get([FromServices]AppDbContext db, [FromQuery]string? search)
     {
-        var query = db.Projects.Include(p => p.Authors).AsQueryable();
+        var query = db.Projects.Include(p => p.Authors).Include(p => p.Medias).AsQueryable();
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -93,6 +93,7 @@ public partial class ProjectsController : Controller
                 p.Description,
                 p.Url,
                 p.Course,
+                Preview = p.Medias.FirstOrDefault(m => m.Type == Models.MediaType.Image) != null ? p.Medias.FirstOrDefault(m => m.Type == Models.MediaType.Image)!.Url : null,
                 Authors = p.Authors.Select(a => new
                 {
                     a.Id,
